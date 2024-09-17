@@ -1,0 +1,10 @@
+[project]
+name = "TC2-BBS-mesh"
+version = "0.0.1"
+description = "TC²-BBS system integrated with Meshtastic devices. The system allows for message handling, bulletin boards, mail systems, and a channel directory."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "meshtastic>=2.3.11",
+    "pypubsub>=4.0.3",
+]
