@@ -6,12 +6,7 @@ from datetime import datetime
 
 from meshtastic import BROADCAST_NUM
 
-from utils import (
-    send_bulletin_to_bbs_nodes,
-    send_delete_bulletin_to_bbs_nodes,
-    send_delete_mail_to_bbs_nodes,
-    send_mail_to_bbs_nodes, send_message, send_channel_to_bbs_nodes
-)
+from utils import send_message
 
 
 thread_local = threading.local()
@@ -57,8 +52,6 @@ def add_channel(name, url, bbs_nodes=None, interface=None):
     c.execute("INSERT INTO channels (name, url) VALUES (?, ?)", (name, url))
     conn.commit()
 
-    if bbs_nodes and interface:
-        send_channel_to_bbs_nodes(name, url, bbs_nodes, interface)
 
 
 def get_channels():
@@ -79,8 +72,6 @@ def add_bulletin(board, sender_short_name, subject, content, bbs_nodes, interfac
         "INSERT INTO bulletins (board, sender_short_name, date, subject, content, unique_id) VALUES (?, ?, ?, ?, ?, ?)",
         (board, sender_short_name, date, subject, content, unique_id))
     conn.commit()
-    if bbs_nodes and interface:
-        send_bulletin_to_bbs_nodes(board, sender_short_name, subject, content, unique_id, bbs_nodes, interface)
 
     # New logic to send group chat notification for urgent bulletins
     if board.lower() == "urgent":
@@ -108,7 +99,6 @@ def delete_bulletin(bulletin_id, bbs_nodes, interface):
     c = conn.cursor()
     c.execute("DELETE FROM bulletins WHERE id = ?", (bulletin_id,))
     conn.commit()
-    send_delete_bulletin_to_bbs_nodes(bulletin_id, bbs_nodes, interface)
 
 def add_mail(sender_id, sender_short_name, recipient_id, subject, content, bbs_nodes, interface, unique_id=None):
     conn = get_db_connection()
@@ -119,8 +109,6 @@ def add_mail(sender_id, sender_short_name, recipient_id, subject, content, bbs_n
     c.execute("INSERT INTO mail (sender, sender_short_name, recipient, date, subject, content, unique_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
               (sender_id, sender_short_name, recipient_id, date, subject, content, unique_id))
     conn.commit()
-    if bbs_nodes and interface:
-        send_mail_to_bbs_nodes(sender_id, sender_short_name, recipient_id, subject, content, unique_id, bbs_nodes, interface)
     return unique_id
 
 def get_mail(recipient_id):
@@ -149,7 +137,6 @@ def delete_mail(unique_id, recipient_id, bbs_nodes, interface):
         logging.info(f"Attempting to delete mail with unique_id: {unique_id} by {recipient_id}")
         c.execute("DELETE FROM mail WHERE unique_id = ? and recipient = ?", (unique_id, recipient_id,))
         conn.commit()
-        send_delete_mail_to_bbs_nodes(unique_id, bbs_nodes, interface)
         logging.info(f"Mail with unique_id: {unique_id} deleted and sync message sent.")
     except Exception as e:
         logging.error(f"Error deleting mail with unique_id {unique_id}: {e}")

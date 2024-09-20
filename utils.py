@@ -50,36 +50,3 @@ def get_node_short_name(node_id, interface):
     if node_info:
         return node_info['user']['shortName']
     return None
-
-
-def send_bulletin_to_bbs_nodes(board, sender_short_name, subject, content, unique_id, bbs_nodes, interface):
-    message = f"BULLETIN|{board}|{sender_short_name}|{subject}|{content}|{unique_id}"
-    for node_id in bbs_nodes:
-        send_message(message, node_id, interface)
-
-
-def send_mail_to_bbs_nodes(sender_id, sender_short_name, recipient_id, subject, content, unique_id, bbs_nodes,
-                           interface):
-    message = f"MAIL|{sender_id}|{sender_short_name}|{recipient_id}|{subject}|{content}|{unique_id}"
-    logging.info(f"SERVER SYNC: Syncing new mail message {subject} sent from {sender_short_name} to other BBS systems.")
-    for node_id in bbs_nodes:
-        send_message(message, node_id, interface)
-
-
-def send_delete_bulletin_to_bbs_nodes(bulletin_id, bbs_nodes, interface):
-    message = f"DELETE_BULLETIN|{bulletin_id}"
-    for node_id in bbs_nodes:
-        send_message(message, node_id, interface)
-
-
-def send_delete_mail_to_bbs_nodes(unique_id, bbs_nodes, interface):
-    message = f"DELETE_MAIL|{unique_id}"
-    logging.info(f"SERVER SYNC: Sending delete mail sync message with unique_id: {unique_id}")
-    for node_id in bbs_nodes:
-        send_message(message, node_id, interface)
-
-
-def send_channel_to_bbs_nodes(name, url, bbs_nodes, interface):
-    message = f"CHANNEL|{name}|{url}"
-    for node_id in bbs_nodes:
-        send_message(message, node_id, interface)

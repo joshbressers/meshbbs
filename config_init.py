@@ -7,6 +7,9 @@ import meshtastic.tcp_interface
 import serial.tools.list_ports
 import argparse
 
+import threading
+from pubsub import pub
+
 
 def init_cli_parser() -> argparse.Namespace:
     """Function build the CLI parser and parses the arguments.
@@ -172,8 +175,72 @@ def get_interface(system_config:dict[str, Any]) -> meshtastic.stream_interface.S
                 if not system_config['hostname']:
                     raise ValueError("Hostname must be specified for TCP interface")
                 return meshtastic.tcp_interface.TCPInterface(hostname=system_config['hostname'])
+            elif system_config['interface_type'] == 'debug':
+                return DebugInterface()
             else:
                 raise ValueError("Invalid interface type specified in config file")
         except PermissionError as e:
             print(f"PermissionError: {e}. Retrying in 5 seconds...")
             time.sleep(5)
+
+class DebugInterface:
+    def __init__(self, *argv, **kwargs):
+        print(argv)
+        print(kwargs)
+        
+        self._rxThread = threading.Thread(target=self.__reader, args=(), daemon=True)
+        self._rxThread.start()
+
+        self.fake_packet = {
+            'decoded': {
+                'portnum': 'TEXT_MESSAGE_APP',
+                'payload': b''
+            },
+            'from': 'test_from',
+            'to': '123',
+            'fromId': 'test_from_id'
+        }
+
+        self.nodes = {
+            'test_from_id': {
+                'user': {
+                    'shortName': 'from'
+                },
+                'num': '456'
+            },
+            'test_to_id': {
+                'user': {
+                    'shortName': 'to'
+                },
+                'num': '123'
+            }
+        }
+
+        class myTempInfo:
+            def __init__(self):
+                self.my_node_num = '123'
+
+        self.myInfo = myTempInfo()
+
+    def __contains__(self, item):
+        return item in self.fake_packet
+    
+    def __getitem__(self, key):
+        return self.fake_packet[key]
+    
+    def __reader(self):
+        while True:
+            data = input("Enter Text: ")
+            self.fake_packet['decoded']['payload'] = bytes(data, 'utf-8')
+            pub.sendMessage("meshtastic.receive", packet=self.fake_packet, interface=self)
+
+    def sendText(self, text, destinationId, wantAck, wantResponse):
+        print()
+        print(text)
+        print()
+
+        class fakeReturn:
+            def __init__(self):
+                self.id = '456'
+
+        return fakeReturn()

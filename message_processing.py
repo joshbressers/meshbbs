@@ -111,9 +111,6 @@ def process_message(sender_id, message, interface, is_sync_message=False):
                 handlers = bulletin_menu_handlers
             elif state and state['command'] == 'BULLETIN_ACTION':
                 handlers = board_action_handlers
-            elif state and state['command'] == 'GROUP_MESSAGES':
-                handle_group_message_selection(sender_id, message, state['step'], state, interface)
-                return
             else:
                 handlers = main_menu_handlers
 
@@ -159,8 +156,6 @@ def process_message(sender_id, message, interface, is_sync_message=False):
                     handle_bb_steps(sender_id, message, 5, state, interface, bbs_nodes)
                 elif command == 'BULLETIN_READ':
                     handle_bb_steps(sender_id, message, 3, state, interface, bbs_nodes)
-                elif command == 'GROUP_MESSAGES':
-                    handle_group_message_selection(sender_id, message, step, state, interface)
                 else:
                     handle_help_command(sender_id, interface)
             else:
