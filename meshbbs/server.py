@@ -26,40 +26,15 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S'
 )
 
-def on_receive(packet, interface) -> None:
-    try:
-        if 'decoded' in packet and packet['decoded']['portnum'] == 'TEXT_MESSAGE_APP':
-            message_bytes = packet['decoded']['payload']
-            message_string = message_bytes.decode('utf-8')
-            sender_id = packet['from']
-            to_id = packet.get('to')
-            sender_node_id = packet['fromId']
-
-            sender_short_name = utils.get_node_short_name(sender_node_id, interface)
-            receiver_short_name = utils.get_node_short_name(utils.get_node_id_from_num(to_id, interface),
-                                                      interface) if to_id else "Group Chat"
-            logging.info(f"Received message from user '{sender_short_name}' to {receiver_short_name}: {message_string}")
-
-            if to_id is not None and to_id != 0 and to_id != 255 and to_id == interface.myInfo.my_node_num:
-                process_message(sender_id, message_string, interface, is_sync_message=False)
-            else:
-                logging.info("Ignoring message sent to group chat or from unknown node")
-    except KeyError as e:
-        logging.error(f"Error processing packet: {e}")
-
-def process_message(sender_id, message, interface, is_sync_message=False) -> None:
-    utils.send_message(message, sender_id, interface)
-
 def main() -> None:
     system_config = config_init.initialize_config()
-
     interface = config_init.get_interface(system_config)
 
     logging.info(f"meshbbs is running on {system_config['interface_type']} interface...")
 
-
     def receive_packet(packet, interface) -> None:
-        on_receive(packet, interface)
+        mesh = utils.MeshComms(interface)
+        mesh.on_receive(packet)
 
     pubsub.pub.subscribe(receive_packet, system_config['mqtt_topic'])
 
