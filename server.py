@@ -15,10 +15,9 @@ other BBS servers listed in the config.ini file.
 import logging
 import time
 
-from config_init import initialize_config, get_interface, init_cli_parser, merge_config
-from db_operations import initialize_database
-from message_processing import on_receive
-from pubsub import pub
+import config_init
+import pubsub
+import utils
 
 # General logging
 logging.basicConfig(
@@ -27,40 +26,42 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S'
 )
 
-def display_banner():
-    banner = """
-████████╗ ██████╗██████╗       ██████╗ ██████╗ ███████╗
-╚══██╔══╝██╔════╝╚════██╗      ██╔══██╗██╔══██╗██╔════╝
-   ██║   ██║      █████╔╝█████╗██████╔╝██████╔╝███████╗
-   ██║   ██║     ██╔═══╝ ╚════╝██╔══██╗██╔══██╗╚════██║
-   ██║   ╚██████╗███████╗      ██████╔╝██████╔╝███████║
-   ╚═╝    ╚═════╝╚══════╝      ╚═════╝ ╚═════╝ ╚══════╝
-Meshtastic Version
-"""
-    print(banner)
+def on_receive(packet, interface):
+    try:
+        if 'decoded' in packet and packet['decoded']['portnum'] == 'TEXT_MESSAGE_APP':
+            message_bytes = packet['decoded']['payload']
+            message_string = message_bytes.decode('utf-8')
+            sender_id = packet['from']
+            to_id = packet.get('to')
+            sender_node_id = packet['fromId']
+
+            sender_short_name = utils.get_node_short_name(sender_node_id, interface)
+            receiver_short_name = utils.get_node_short_name(utils.get_node_id_from_num(to_id, interface),
+                                                      interface) if to_id else "Group Chat"
+            logging.info(f"Received message from user '{sender_short_name}' to {receiver_short_name}: {message_string}")
+
+            if to_id is not None and to_id != 0 and to_id != 255 and to_id == interface.myInfo.my_node_num:
+                process_message(sender_id, message_string, interface, is_sync_message=False)
+            else:
+                logging.info("Ignoring message sent to group chat or from unknown node")
+    except KeyError as e:
+        logging.error(f"Error processing packet: {e}")
+
+def process_message(sender_id, message, interface, is_sync_message=False):
+    utils.send_message(message, sender_id, interface)
 
 def main():
-    display_banner()
-    args = init_cli_parser()
-    config_file = None
-    if args.config is not None:
-        config_file = args.config
-    system_config = initialize_config(config_file)
+    system_config = config_init.initialize_config()
 
-    merge_config(system_config, args)
-
-    interface = get_interface(system_config)
-    interface.bbs_nodes = system_config['bbs_nodes']
-    interface.allowed_nodes = system_config['allowed_nodes']
+    interface = config_init.get_interface(system_config)
 
     logging.info(f"TC²-BBS is running on {system_config['interface_type']} interface...")
 
-    initialize_database()
 
     def receive_packet(packet, interface):
         on_receive(packet, interface)
 
-    pub.subscribe(receive_packet, system_config['mqtt_topic'])
+    pubsub.pub.subscribe(receive_packet, system_config['mqtt_topic'])
 
     try:
         while True:
