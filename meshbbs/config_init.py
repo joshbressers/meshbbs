@@ -98,8 +98,6 @@ def get_interface(system_config:dict[str, Any]) -> meshtastic.stream_interface.S
 
 class DebugInterface:
     def __init__(self, *argv, **kwargs):
-        print(argv)
-        print(kwargs)
         
         self._rxThread = threading.Thread(target=self.__reader, args=(), daemon=True)
         self._rxThread.start()
