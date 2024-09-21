@@ -26,7 +26,7 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S'
 )
 
-def on_receive(packet, interface):
+def on_receive(packet, interface) -> None:
     try:
         if 'decoded' in packet and packet['decoded']['portnum'] == 'TEXT_MESSAGE_APP':
             message_bytes = packet['decoded']['payload']
@@ -47,10 +47,10 @@ def on_receive(packet, interface):
     except KeyError as e:
         logging.error(f"Error processing packet: {e}")
 
-def process_message(sender_id, message, interface, is_sync_message=False):
+def process_message(sender_id, message, interface, is_sync_message=False) -> None:
     utils.send_message(message, sender_id, interface)
 
-def main():
+def main() -> None:
     system_config = config_init.initialize_config()
 
     interface = config_init.get_interface(system_config)
@@ -58,7 +58,7 @@ def main():
     logging.info(f"meshbbs is running on {system_config['interface_type']} interface...")
 
 
-    def receive_packet(packet, interface):
+    def receive_packet(packet, interface) -> None:
         on_receive(packet, interface)
 
     pubsub.pub.subscribe(receive_packet, system_config['mqtt_topic'])

@@ -93,6 +93,12 @@ def get_interface(system_config:dict[str, Any]) -> meshtastic.stream_interface.S
             print(f"PermissionError: {e}. Retrying in 5 seconds...")
             time.sleep(5)
 
+class fakeReturn:
+    "A fake debug class"
+    def __init__(self):
+        self.id = '456'
+
+
 class DebugInterface:
     "A special class designed to be a local debug instance"
 
@@ -138,22 +144,19 @@ class DebugInterface:
     def __getitem__(self, key):
         return self.fake_packet[key]
     
-    def __reader(self):
+    def __reader(self) -> None:
         while True:
             data = input("Enter Text: ")
             self.fake_packet['decoded']['payload'] = bytes(data, 'utf-8')
             pub.sendMessage("meshtastic.receive", packet=self.fake_packet, interface=self)
 
-    def sendText(self, text, destinationId, wantAck, wantResponse):
+    def sendText(self, text, destinationId, wantAck, wantResponse) -> fakeReturn:
         print()
         print(text)
         print()
 
-        class fakeReturn:
-            def __init__(self):
-                self.id = '456'
-
         return fakeReturn()
     
-    def close(self):
+    def close(self) -> None:
         pass
+
