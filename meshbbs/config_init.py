@@ -18,9 +18,6 @@ def initialize_config() -> dict[str, Any]:
     Returns a dict with the following entries:
     config - parsed config file
     interface_type - type of the active interface
-    hostname - host name for TCP interface
-    port - serial port name for serial interface
-    bbs_nodes - list of peer nodes to sync with
 
     Args:
         config_file (str, optional): Path to config file. Function reads from './config.ini' if this arg is set to None. Defaults to None.
@@ -97,6 +94,8 @@ def get_interface(system_config:dict[str, Any]) -> meshtastic.stream_interface.S
             time.sleep(5)
 
 class DebugInterface:
+    "A special class designed to be a local debug instance"
+
     def __init__(self, *argv, **kwargs):
         
         self._rxThread = threading.Thread(target=self.__reader, args=(), daemon=True)
@@ -155,3 +154,6 @@ class DebugInterface:
                 self.id = '456'
 
         return fakeReturn()
+    
+    def close(self):
+        pass

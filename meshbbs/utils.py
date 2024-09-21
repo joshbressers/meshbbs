@@ -1,16 +1,6 @@
 import logging
 import time
 
-user_states = {}
-
-
-def update_user_state(user_id, state):
-    user_states[user_id] = state
-
-
-def get_user_state(user_id):
-    return user_states.get(user_id, None)
-
 
 def send_message(message, destination, interface):
     max_payload_size = 200
@@ -29,14 +19,6 @@ def send_message(message, destination, interface):
 
         
         time.sleep(2)
-
-
-def get_node_info(interface, short_name):
-    nodes = [{'num': node_id, 'shortName': node['user']['shortName'], 'longName': node['user']['longName']}
-             for node_id, node in interface.nodes.items()
-             if node['user']['shortName'].lower() == short_name]
-    return nodes
-
 
 def get_node_id_from_num(node_num, interface):
     for node_id, node in interface.nodes.items():

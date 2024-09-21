@@ -55,7 +55,7 @@ def main():
 
     interface = config_init.get_interface(system_config)
 
-    logging.info(f"TC²-BBS is running on {system_config['interface_type']} interface...")
+    logging.info(f"meshbbs is running on {system_config['interface_type']} interface...")
 
 
     def receive_packet(packet, interface):
