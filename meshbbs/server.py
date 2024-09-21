@@ -15,9 +15,9 @@ other BBS servers listed in the config.ini file.
 import logging
 import time
 
-import config_init
+from meshbbs import config_init
+from meshbbs import utils
 import pubsub
-import utils
 
 # General logging
 logging.basicConfig(

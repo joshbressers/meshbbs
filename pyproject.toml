@@ -1,10 +1,18 @@
-[project]
-name = "TC2-BBS-mesh"
+[tool.poetry]
+name = "meshbbs"
 version = "0.0.1"
-description = "TC²-BBS system integrated with Meshtastic devices. The system allows for message handling, bulletin boards, mail systems, and a channel directory."
+description = "A meshtastic BBS system"
 readme = "README.md"
-requires-python = ">=3.12"
-dependencies = [
-    "meshtastic>=2.3.11",
-    "pypubsub>=4.0.3",
-]
+authors = ["Josh Bressers <josh@bres.net>"]
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.13"
+pypubsub = "^4.0.3"
+meshtastic = "^2.5.0"
+
+[tool.poetry.scripts]
+meshbbs = "meshbbs.server:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
