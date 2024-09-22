@@ -4,10 +4,13 @@ import meshtastic
 import meshtastic.stream_interface
 import meshtastic.tcp_interface
 
+from meshbbs import bbs
+
 class MeshComms:
-    def __init__(self, interface):
+    def __init__(self, interface: meshtastic.stream_interface.StreamInterface, users: dict[str, bbs.User]):
         self.interface: meshtastic.stream_interface.StreamInterface
         self.interface = interface
+        self.users = users
 
     def on_receive(self, packet) -> None:
         try:
@@ -19,11 +22,16 @@ class MeshComms:
                 sender_node_id = packet['fromId']
 
                 sender_short_name = self.get_node_short_name(sender_node_id)
+                sender_long_name = self.get_node_long_name(sender_node_id)
                 receiver_short_name = self.get_node_short_name(self.get_node_id_from_num(to_id)) if to_id else "Group Chat"
                 logging.info(f"Received message from user '{sender_short_name}' to {receiver_short_name}: {message_string}")
 
+                if sender_id not in self.users:
+                    self.users[sender_id] = bbs.User(sender_id, sender_short_name, sender_long_name)
+
                 if to_id is not None and to_id != 0 and to_id != 255 and to_id == self.interface.myInfo.my_node_num:
-                    self.process_message(sender_id, message_string)
+                    return_message = self.users[sender_id].parse(message_string)
+                    self.process_message(sender_id, return_message)
                 else:
                     logging.info("Ignoring message sent to group chat or from unknown node")
         except KeyError as e:
@@ -48,7 +56,7 @@ class MeshComms:
                 logging.info(f"REPLY SEND ERROR {e.message}")
 
             
-            time.sleep(2)
+            time.sleep(3)
 
     def get_node_id_from_num(self, node_num) -> str:
         for node_id, node in self.interface.nodes.items():
@@ -61,4 +69,10 @@ class MeshComms:
         node_info = self.interface.nodes.get(node_id)
         if node_info:
             return node_info['user']['shortName']
+        return None
+
+    def get_node_long_name(self, node_id) -> str:
+        node_info = self.interface.nodes.get(node_id)
+        if node_info:
+            return node_info['user']['longName']
         return None

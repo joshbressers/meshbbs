@@ -120,13 +120,15 @@ class DebugInterface:
         self.nodes = {
             'test_from_id': {
                 'user': {
-                    'shortName': 'from'
+                    'shortName': 'short_from',
+                    'longName': 'long_from'
                 },
                 'num': '456'
             },
             'test_to_id': {
                 'user': {
-                    'shortName': 'to'
+                    'shortName': 'short_to',
+                    'longName': 'long_to'
                 },
                 'num': '123'
             }

@@ -17,6 +17,7 @@ import time
 
 from meshbbs import config_init
 from meshbbs import utils
+from meshbbs import bbs
 import pubsub
 
 # General logging
@@ -29,11 +30,12 @@ logging.basicConfig(
 def main() -> None:
     system_config = config_init.initialize_config()
     interface = config_init.get_interface(system_config)
+    users: dict[str, bbs.User] = {}
 
     logging.info(f"meshbbs is running on {system_config['interface_type']} interface...")
 
     def receive_packet(packet, interface) -> None:
-        mesh = utils.MeshComms(interface)
+        mesh = utils.MeshComms(interface, users)
         mesh.on_receive(packet)
 
     pubsub.pub.subscribe(receive_packet, system_config['mqtt_topic'])
