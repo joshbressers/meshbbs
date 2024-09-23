@@ -10,7 +10,7 @@ class User:
         self.id = id
         self.short_name = short_name
         self.long_name = long_name
-        self.stage = main.MainMenu()
+        self.stage = main.MainMenu(self)
         self.last_active = time.time()
 
     def parse(self, message) -> str:

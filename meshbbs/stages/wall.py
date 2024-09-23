@@ -13,16 +13,17 @@ wall_message = "There is no message yet"
 # Get input
 
 class StageClass(meshbbs.stages.MenuItem):
-    def __init__(self):
+    def __init__(self, user):
         self.run_next = None
         self.state = "show"
+        self.user = user
 
     def get_input(self, message:str = None) -> str:
         if self.state == "change":
             self.state = "show"
             self.run_next = None
             global wall_message
-            wall_message = message
+            wall_message = message + "\nBy user %s" % self.user.short_name
             return self.run_stage()
         else:
             # Always change this just in case something weird happens

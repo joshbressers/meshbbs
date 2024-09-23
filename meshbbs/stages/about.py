@@ -12,7 +12,7 @@ The software is not at all stable, you've been warned
 """
 
 class StageClass(MenuItem):
-    def __init__(self):
+    def __init__(self, user):
         pass
 
     def run_stage(self, message:str = None) -> str:

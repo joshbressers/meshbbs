@@ -12,7 +12,7 @@ name = "Echo"
 # Get input
 
 class StageClass(meshbbs.stages.MenuItem):
-    def __init__(self):
+    def __init__(self, user):
         self.run_next = None
 
     def get_input(self, message:str = None) -> str:

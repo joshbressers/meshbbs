@@ -1,9 +1,10 @@
 
+
 class MenuItem:
-    def __init__(self):
+    def __init__(self, user):
         pass
 
-    def run_stage(self) -> str:
+    def run_stage(self, message: str) -> str:
         pass
 
 class DoneRunning(Exception):

@@ -15,10 +15,11 @@ stages = [
 
 class MainMenu(meshbbs.stages.MenuItem):
 
-    def __init__(self):
+    def __init__(self, user):
         self.main_message = "Welcome to Meshtastic BBS\n"
         self.to_run = None
         self.to_menu = False
+        self.user = user
 
         for i in stages:
             self.main_message = self.main_message + f"[{i.letter}] {i.name}\n"
@@ -33,10 +34,10 @@ class MainMenu(meshbbs.stages.MenuItem):
 
         for i in stages:
             if message.lower() == i.letter.lower():
-                self.to_run = i.StageClass()
+                self.to_run = i.StageClass(self.user)
                 return self.run_stage(message)
 
-        return "Unknown option\n\n" + main_message
+        return "Unknown option\n\n" + self.main_message
             
     def main_menu(self, message: str = None):
         return_string = self.main_message
