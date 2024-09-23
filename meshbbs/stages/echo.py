@@ -16,7 +16,7 @@ class StageClass(meshbbs.stages.MenuItem):
         self.run_next = None
 
     def get_input(self, message:str = None) -> str:
-        if message == "exit":
+        if message.lower == "exit":
             raise DoneRunning("See you later!\n\n")
         output_message = f"You typed:\n{message}\n"
         return output_message
