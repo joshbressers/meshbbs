@@ -1,5 +1,4 @@
-from meshbbs.stages import DoneRunning
-from meshbbs.stages import MenuItem
+
 
 letter = 'A'
 name = "About"
@@ -11,9 +10,9 @@ Feel free to file bugs
 The software is not at all stable, you've been warned
 """
 
-class StageClass(MenuItem):
+class StageClass():
     def __init__(self, user):
-        pass
+        self.user = user
 
-    def run_stage(self, message:str = None) -> str:
-        raise DoneRunning(about_message)
+    def run(self) -> str:
+        self.user.print(about_message)

@@ -3,49 +3,87 @@ import time
 import meshtastic
 import meshtastic.stream_interface
 import meshtastic.tcp_interface
+import queue
 
 from meshbbs import bbs
 
-class MeshComms:
-    def __init__(self, interface: meshtastic.stream_interface.StreamInterface, users: dict[str, bbs.User]):
-        self.interface: meshtastic.stream_interface.StreamInterface
+class MeshPacket:
+    def __init__(self, packet, interface):
         self.interface = interface
-        self.users = users
+        self.packet = packet
+        self.message_bytes = None
+        self.message_string = None
+        self.sender_id = None
+        self.to_id = None
+        self.sender_node_id = None
+        self.sender_short_name = None
+        self.sender_long_name = None
+        self.receiver_short_name = None
 
-    def on_receive(self, packet) -> None:
         try:
             if 'decoded' in packet and packet['decoded']['portnum'] == 'TEXT_MESSAGE_APP':
-                message_bytes = packet['decoded']['payload']
-                message_string = message_bytes.decode('utf-8')
-                sender_id = packet['from']
-                to_id = packet.get('to')
-                sender_node_id = packet['fromId']
+                self.message_bytes = packet['decoded']['payload']
+                self.message_string = self.message_bytes.decode('utf-8')
+                self.sender_id = packet['from']
+                self.to_id = packet.get('to')
+                self.sender_node_id = packet['fromId']
 
-                sender_short_name = self.get_node_short_name(sender_node_id)
-                sender_long_name = self.get_node_long_name(sender_node_id)
-                receiver_short_name = self.get_node_short_name(self.get_node_id_from_num(to_id)) if to_id else "Group Chat"
-                logging.info(f"Received message from user '{sender_short_name}' to {receiver_short_name}: {message_string}")
-
-                if sender_id not in self.users:
-                    self.users[sender_id] = bbs.User(sender_id, sender_short_name, sender_long_name)
-
-                if to_id is not None and to_id != 0 and to_id != 255 and to_id == self.interface.myInfo.my_node_num:
-                    return_message = self.users[sender_id].parse(message_string)
-                    self.process_message(sender_id, return_message)
-                else:
-                    logging.info("Ignoring message sent to group chat or from unknown node")
+                self.sender_short_name = self.get_sender_short_name()
+                self.sender_long_name = self.get_node_long_name()
+                self.receiver_short_name = self.get_receiver_short_name() if self.to_id else "Group Chat"
+                logging.info(f"Received message from user '{self.sender_short_name}' to {self.receiver_short_name}: {self.message_string}")
         except KeyError as e:
             logging.error(f"Error processing packet: {e}")
 
-    def process_message(self, sender_id, message) -> None:
-        self.send_message(message, sender_id)
+    def get_message(self) -> str:
+        "return the message"
+        return self.message_string
+    
+    def to_me(self) -> bool:
+        "Return true if this packet is destined for me"
 
-    def send_message(self, message, destination) -> None:
-        max_payload_size = 200
+        if (self.to_id is not None and self.to_id != 0 and self.to_id != 255 and \
+                self.to_id == self.interface.myInfo.my_node_num):
+            return True
+        else:
+            return False
+
+    def get_node_id_from_num(self, node_num) -> str:
+        for node_id, node in self.interface.nodes.items():
+            if node['num'] == node_num:
+                return node_id
+        return None
+
+    def get_receiver_short_name(self) -> str:
+        node_id = self.get_node_id_from_num(self.to_id)
+        node_info = self.interface.nodes.get(node_id)
+        if node_info:
+            return node_info['user']['shortName']
+        return None
+    
+    def get_sender_short_name(self) -> str:
+        node_id = self.sender_node_id
+        node_info = self.interface.nodes.get(node_id)
+        if node_info:
+            return node_info['user']['shortName']
+        return None
+
+    def get_node_long_name(self) -> str:
+        node_id = self.sender_node_id
+        node_info = self.interface.nodes.get(node_id)
+        if node_info:
+            return node_info['user']['longName']
+        return None
+
+def send_messages(send_q: queue.Queue, interface: meshtastic.stream_interface.StreamInterface) -> None:
+    max_payload_size = 200
+
+    while True:
+        (destination, message) = send_q.get()
         for i in range(0, len(message), max_payload_size):
             chunk = message[i:i + max_payload_size]
             try:
-                d = self.interface.sendText(
+                d = interface.sendText(
                     text=chunk,
                     destinationId=destination,
                     wantAck=False,
@@ -54,25 +92,5 @@ class MeshComms:
                 logging.info(f"REPLY SEND ID={d.id}")
             except Exception as e:
                 logging.info(f"REPLY SEND ERROR {e.message}")
-
-            
-            time.sleep(3)
-
-    def get_node_id_from_num(self, node_num) -> str:
-        for node_id, node in self.interface.nodes.items():
-            if node['num'] == node_num:
-                return node_id
-        return None
-
-
-    def get_node_short_name(self, node_id) -> str:
-        node_info = self.interface.nodes.get(node_id)
-        if node_info:
-            return node_info['user']['shortName']
-        return None
-
-    def get_node_long_name(self, node_id) -> str:
-        node_info = self.interface.nodes.get(node_id)
-        if node_info:
-            return node_info['user']['longName']
-        return None
+        time.sleep(2)
+        send_q.task_done()

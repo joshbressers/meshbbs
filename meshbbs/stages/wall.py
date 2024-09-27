@@ -1,10 +1,24 @@
+import meshbbs
+import meshbbs.bbs
 import meshbbs.stages
 
-from meshbbs.stages import DoneRunning
+from datetime import datetime
+
+import peewee
+
+db = peewee.SqliteDatabase('meshbbs.db')
 
 letter = 'W'
 name = "Wall"
 wall_message = "There is no message yet"
+
+class WallMessage(peewee.Model):
+    message = peewee.CharField()
+    user = peewee.CharField()
+    update_time = peewee.DateTimeField()
+
+    class Meta:
+        database = db
 
 # First pass, display message
 # Get input
@@ -12,35 +26,43 @@ wall_message = "There is no message yet"
 # Return output
 # Get input
 
-class StageClass(meshbbs.stages.MenuItem):
-    def __init__(self, user):
-        self.run_next = None
-        self.state = "show"
+db.create_tables([WallMessage])
+# We will need to create the first message if none exist
+try:
+    message = WallMessage.select().order_by(WallMessage.update_time.asc()).get()
+except:
+    message = WallMessage(message="New message", user="sysop", update_time = datetime.now())
+
+class StageClass():
+    def __init__(self, user: "meshbbs.bbs.User"):
         self.user = user
 
-    def get_input(self, message:str = None) -> str:
-        if self.state == "change":
-            self.state = "show"
-            self.run_next = None
-            global wall_message
-            wall_message = message + "\nBy user %s" % self.user.short_name
-            return self.run_stage()
-        else:
-            # Always change this just in case something weird happens
-            self.state = "show"
-            if message.lower() == "n":
-                raise DoneRunning("See you later!\n\n")
-            elif message.lower() == "y":
-                output_message = f"Plese enter a new message:\n"
-                self.state = "change"
-            else:
-                output_message = "I don't know that option"
-            return output_message
+    def print_message(self) -> str:
+        # Load the wall message
+        # Return it
+        pass
+
+    def change_message(self) -> str:
+        # Read user input
+        # Save the input
+        # call print_message
+        pass
+
+    def get_input(self, prompt: str) -> str:
+        # Read what a user sent
+        # Let's put a queue in the user object. Just loop waiting for input
+        # Return it to the caller
+        pass
 
     def run_stage(self, message:str = None) -> str:
-        if self.run_next is None:
-            self.run_next = self.get_input
-            first_message = f"The current wall message is\n{wall_message}\n\nChange it? Y/N\n"
-            return first_message
+        # First time in, print the messsage
+        self.print_message()
+
+        # Get change input
+        input = self.get_input()
+        if input.lower() == "y":
+            self.change_message()
+        elif input.lower() == "n":
+            self.exit()
         else:
-            return self.run_next(message)
+            self.exit("Unknown option")

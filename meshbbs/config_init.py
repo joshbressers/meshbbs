@@ -34,7 +34,6 @@ def initialize_config() -> dict[str, Any]:
     hostname = config['interface'].get('hostname', None)
     port = config['interface'].get('port', None)
 
-
     return {
         'config': config,
         'interface_type': interface_type,

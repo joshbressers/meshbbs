@@ -1,6 +1,5 @@
-import meshbbs.stages
 
-from meshbbs.stages import DoneRunning
+
 
 letter = 'E'
 name = "Echo"
@@ -11,20 +10,11 @@ name = "Echo"
 # Return output
 # Get input
 
-class StageClass(meshbbs.stages.MenuItem):
+class StageClass():
     def __init__(self, user):
-        self.run_next = None
+        self.user = user
 
-    def get_input(self, message:str = None) -> str:
-        if message.lower() == "exit":
-            raise DoneRunning("See you later!\n\n")
-        output_message = f"You typed:\n{message}\n"
-        return output_message
-
-    def run_stage(self, message:str = None) -> str:
-        if self.run_next is None:
-            self.run_next = self.get_input
-            first_message = "Simple echo:\nEcho back whatever you type\n\n'exit' to quit"
-            return first_message
-        else:
-            return self.run_next(message)
+    def run(self) -> str:
+        self.user.print("\nType something and I'll echo it back\n")
+        input = self.user.get_input()
+        self.user.print(f"You typed\n{input}\n")

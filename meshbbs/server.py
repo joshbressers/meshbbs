@@ -20,6 +20,9 @@ from meshbbs import utils
 from meshbbs import bbs
 import pubsub
 
+import queue
+import threading
+
 # General logging
 logging.basicConfig(
     level=logging.INFO,
@@ -30,15 +33,24 @@ logging.basicConfig(
 def main() -> None:
     system_config = config_init.initialize_config()
     interface = config_init.get_interface(system_config)
-    users: dict[str, bbs.User] = {}
+    send_q = queue.Queue()
+    users = {}
 
     logging.info(f"meshbbs is running on {system_config['interface_type']} interface...")
 
     def receive_packet(packet, interface) -> None:
-        mesh = utils.MeshComms(interface, users)
-        mesh.on_receive(packet)
+        the_packet = utils.MeshPacket(packet, interface)
+        if the_packet.to_me() == True:
+
+            if the_packet.sender_id not in users:
+                users[the_packet.sender_id] = bbs.User(the_packet.sender_id, send_q)
+
+            users[the_packet.sender_id].parse(the_packet)
 
     pubsub.pub.subscribe(receive_packet, system_config['mqtt_topic'])
+
+    sender = threading.Thread(target=utils.send_messages, args=[send_q, interface])
+    sender.start()
 
     try:
         while True:
