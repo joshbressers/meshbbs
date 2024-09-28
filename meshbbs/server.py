@@ -43,7 +43,7 @@ def main() -> None:
         if the_packet.to_me() == True:
 
             if the_packet.sender_id not in users:
-                users[the_packet.sender_id] = bbs.User(the_packet.sender_id, send_q)
+                users[the_packet.sender_id] = bbs.User(the_packet.get_node_long_name(), the_packet.get_receiver_short_name(), the_packet.sender_id, send_q)
 
             users[the_packet.sender_id].parse(the_packet)
 

@@ -8,9 +8,11 @@ import queue
 import meshbbs.utils
     
 class User:
-    def __init__(self, id, send_q: queue.Queue):
+    def __init__(self, long_name, short_name, id, send_q: queue.Queue):
         self.last_active = datetime.now()
         self.id = id
+        self.long_name = long_name
+        self.short_name = short_name
         self.my_q = queue.Queue()
         self.send_q = send_q
 

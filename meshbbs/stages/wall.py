@@ -10,7 +10,6 @@ db = peewee.SqliteDatabase('meshbbs.db')
 
 letter = 'W'
 name = "Wall"
-wall_message = "There is no message yet"
 
 class WallMessage(peewee.Model):
     message = peewee.CharField()
@@ -26,43 +25,42 @@ class WallMessage(peewee.Model):
 # Return output
 # Get input
 
-db.create_tables([WallMessage])
+tables = db.get_tables()
+if 'wallmessage' not in tables:
+    db.create_tables([WallMessage])
 # We will need to create the first message if none exist
 try:
-    message = WallMessage.select().order_by(WallMessage.update_time.asc()).get()
+    message = WallMessage.select().order_by(WallMessage.update_time.desc()).get()
 except:
-    message = WallMessage(message="New message", user="sysop", update_time = datetime.now())
+    message = WallMessage(message="First post!", user="sysop", update_time = datetime.now())
+    message.save()
 
 class StageClass():
     def __init__(self, user: "meshbbs.bbs.User"):
         self.user = user
 
-    def print_message(self) -> str:
-        # Load the wall message
-        # Return it
-        pass
+    def run(self, message:str = None) -> str:
 
-    def change_message(self) -> str:
-        # Read user input
-        # Save the input
-        # call print_message
-        pass
+        while True:
+            message = WallMessage.select().order_by(WallMessage.update_time.desc()).get()
+            self.user.print("The wall message is")
+            self.user.print(f"{message.message}\nBy {message.user} on {message.update_time}\n")
+            self.user.print("Would you like to change the message?\nY/N\n")
+            input = self.user.get_input()
+            if input.lower() == "y":
+                # change the message
+                self.user.print("Type new message. Send 'done' as its own message when you are done")
+                new_message = ""
+                while True:
+                    new_input = self.user.get_input()
+                    if new_input.lower() == "done":
+                        break
+                    else:
+                        new_message = new_message + new_input + " "
 
-    def get_input(self, prompt: str) -> str:
-        # Read what a user sent
-        # Let's put a queue in the user object. Just loop waiting for input
-        # Return it to the caller
-        pass
-
-    def run_stage(self, message:str = None) -> str:
-        # First time in, print the messsage
-        self.print_message()
-
-        # Get change input
-        input = self.get_input()
-        if input.lower() == "y":
-            self.change_message()
-        elif input.lower() == "n":
-            self.exit()
-        else:
-            self.exit("Unknown option")
+                message = WallMessage(message=new_message, user=self.user.long_name, update_time = datetime.now())
+                message.save()
+            elif input.lower() == "n":
+                return
+            else:
+                self.user.print("Unknown option")
