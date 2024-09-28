@@ -6,6 +6,9 @@ import meshbbs.stages.main
 from datetime import datetime
 import queue
 import meshbbs.utils
+
+class HelloMessage(Exception):
+    pass
     
 class User:
     def __init__(self, long_name, short_name, id, send_q: queue.Queue):
@@ -29,6 +32,8 @@ class User:
     def get_input(self) -> str:
         message = self.my_q.get()
         self.my_q.task_done()
+        if message.lower() == "hello":
+            raise HelloMessage()
         return message
 
     def check_timeout(self):

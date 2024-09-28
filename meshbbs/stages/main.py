@@ -31,17 +31,20 @@ class MainMenu(threading.Thread):
     def run(self):
         # The thread enters here
         while True:
-            self.user.print(self.main_message)
-            input: str = self.user.get_input()
+            try:
+                self.user.print(self.main_message)
+                input: str = self.user.get_input()
 
-            if input.lower() == "hello":
+                if input.lower() == "hello":
+                    continue
+                if len(input) == 1:
+                    for i in stages:
+                        if input.lower() == i.letter.lower():
+                            to_run = i.StageClass(self.user)
+                            to_run.run()
+                            break
+                    else:
+                        self.user.print(f"Unknown option {input}\n")
+            except meshbbs.bbs.HelloMessage:
+                # We say "hello", go back to the main menu
                 continue
-            if len(input) == 1:
-                for i in stages:
-                    if input == i.letter.lower():
-                        to_run = i.StageClass(self.user)
-                        to_run.run()
-                        break
-                else:
-                    self.user.print(f"Unknown option {input}\n")
-    
