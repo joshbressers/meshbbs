@@ -1,17 +1,22 @@
+"""The BBS wall
+This is a menu that lets a user leave a message. It only shows the last message left
+The data is stored in a sqlite database, that's how we end up sharing it between users
+and allowing it to persist across restarts"""
+
 import meshbbs
 import meshbbs.bbs
 import meshbbs.stages
-
 from datetime import datetime
 
+# We are using the peewee ORM to store the data
 import peewee
-
 db = peewee.SqliteDatabase('meshbbs.db')
 
 letter = 'W'
 name = "Wall"
 
 class WallMessage(peewee.Model):
+    "The class that represents our message data"
     message = peewee.CharField()
     user = peewee.CharField()
     update_time = peewee.DateTimeField()
@@ -19,12 +24,7 @@ class WallMessage(peewee.Model):
     class Meta:
         database = db
 
-# First pass, display message
-# Get input
-# Check for exit
-# Return output
-# Get input
-
+# Setup the database on the first run of the module
 tables = db.get_tables()
 if 'wallmessage' not in tables:
     db.create_tables([WallMessage])
@@ -34,6 +34,7 @@ try:
 except:
     message = WallMessage(message="First post!", user="sysop", update_time = datetime.now())
     message.save()
+# End setup
 
 class StageClass():
     def __init__(self, user: "meshbbs.bbs.User"):

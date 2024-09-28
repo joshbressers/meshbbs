@@ -1,5 +1,8 @@
+"""A menu that shows how to receive and send messages.
+It's not very useful but a good example
+"""
 
-
+import meshbbs.bbs
 
 letter = 'E'
 name = "Echo"
@@ -11,7 +14,7 @@ name = "Echo"
 # Get input
 
 class StageClass():
-    def __init__(self, user):
+    def __init__(self, user: "meshbbs.bbs.User"):
         self.user = user
 
     def run(self) -> str:

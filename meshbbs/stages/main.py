@@ -16,8 +16,12 @@ stages = [
 
 
 class MainMenu(threading.Thread):
+    """Main menu class
 
-    def __init__(self, user):
+    This class is where the main menu exists, and the whole BBS runs from here
+    Each user gets their own MainMenu instance
+    """
+    def __init__(self, user: "meshbbs.bbs.User"):
         threading.Thread.__init__(self)
         self.main_message = "\nWelcome to Meshtastic BBS\n"
         self.to_run = None
