@@ -9,7 +9,9 @@ import argparse
 
 import threading
 from pubsub import pub
-    
+
+import peewee
+db = peewee.SqliteDatabase('meshbbs.db')
     
 def initialize_config() -> dict[str, Any]:
     """
@@ -152,9 +154,9 @@ class DebugInterface:
             pub.sendMessage("meshtastic.receive", packet=self.fake_packet, interface=self)
 
     def sendText(self, text, destinationId, wantAck, wantResponse) -> fakeReturn:
-        print()
+        print("---START MESSAGE---")
         print(text)
-        print()
+        print("----END MESSAGE----")
 
         return fakeReturn()
     

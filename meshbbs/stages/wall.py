@@ -5,15 +5,18 @@ and allowing it to persist across restarts"""
 
 import meshbbs
 import meshbbs.bbs
+import meshbbs.config_init
 import meshbbs.stages
 from datetime import datetime
+import peewee
 
 # We are using the peewee ORM to store the data
-import peewee
-db = peewee.SqliteDatabase('meshbbs.db')
+
 
 letter = 'W'
 name = "Wall"
+
+db = meshbbs.config_init.db
 
 class WallMessage(peewee.Model):
     "The class that represents our message data"
@@ -23,10 +26,11 @@ class WallMessage(peewee.Model):
 
     class Meta:
         database = db
+        name = "wallMessage"
 
 # Setup the database on the first run of the module
 tables = db.get_tables()
-if 'wallmessage' not in tables:
+if 'wallMessage' not in tables:
     db.create_tables([WallMessage])
 # We will need to create the first message if none exist
 try:
