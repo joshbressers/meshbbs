@@ -39,7 +39,7 @@ class MainMenu(threading.Thread):
         while True:
             try:
                 self.user.print(self.main_message)
-                input: str = self.user.get_input()
+                input: str = self.user.get_input(timeout=None)
 
                 if input.lower() == "hello":
                     continue

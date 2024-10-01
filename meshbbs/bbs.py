@@ -37,9 +37,13 @@ class User:
         "Print a message to the user"
         self.send_q.put((self.id, message))
 
-    def get_input(self) -> str:
+    def get_input(self, timeout=3600) -> str:
         "Wait for input from the user, this function blocks"
-        message = self.my_q.get()
+        try:
+            message = self.my_q.get(timeout=timeout)
+        except queue.Empty:
+            # If we timeout, go back to the main menu
+            raise HelloMessage
         self.my_q.task_done()
         if message.lower() == "hello":
             raise HelloMessage()
