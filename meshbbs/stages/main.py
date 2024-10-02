@@ -30,27 +30,25 @@ class MainMenu(threading.Thread):
         self.to_menu = False
         self.user = user
 
+        self.stages = {}
         for i in stages:
-            self.main_message = self.main_message + f"[{i.letter}] {i.name}\n"
-
+            self.stages[i.letter] = i
             
     def run(self):
         # The thread enters here
+
+        the_stages = {}
+
+        the_menu = meshbbs.bbs.UserMenu(self.user, "Welcome to Meshtastic BBS")
+        the_menu.timeout = None
+        for i in stages:
+            the_menu.add_item(name=i.name, letter=i.letter, always=True)
+            the_stages[i.letter.lower()] = i
         while True:
             try:
-                self.user.print(self.main_message)
-                input: str = self.user.get_input(timeout=None)
+                selection = the_menu.get_selection()
+                the_stages[selection.lower()].StageClass(self.user).run()
 
-                if input.lower() == "hello":
-                    continue
-                if len(input) == 1:
-                    for i in stages:
-                        if input.lower() == i.letter.lower():
-                            to_run = i.StageClass(self.user)
-                            to_run.run()
-                            break
-                    else:
-                        self.user.print(f"Unknown option {input}\n")
             except meshbbs.bbs.HelloMessage:
                 # We say "hello", go back to the main menu
                 continue

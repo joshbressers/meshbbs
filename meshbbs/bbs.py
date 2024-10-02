@@ -7,6 +7,8 @@ from datetime import datetime
 import queue
 import meshbbs.utils
 
+from typing import List
+
 class HelloMessage(Exception):
     """
     This exception is to be thrown when just 'hello' is sent by a user
@@ -57,3 +59,51 @@ class User:
             return True
         else:
             return False
+
+class MenuItem:
+    "A class representing an item in a menu"
+
+    def __init__(self, name, letter, always=False):
+        self.name = name
+        self.letter = letter
+        self.always = always
+
+class UserMenu:
+    """
+    A class to handle menu items for the user
+
+    Pass in the user handle and a list of menu items
+    """
+
+    def __init__(self, user: User, menu_title: str):
+        self.menu_items: List[MenuItem] = []
+        self.user = user
+        self.menu_title = menu_title
+        self.timeout = 3600
+
+    def add_item(self, name, letter, always=False):
+        self.menu_items.append(MenuItem(name, letter, always))
+
+    def get_selection(self) -> str:
+        "Print the menu options, with a 'Next' if needed, then return the option chosen"
+
+        out = self.menu_title
+        possible_selections = []
+
+        # Somehow show long lists
+        for i in self.menu_items:
+            short = i.letter
+            possible_selections.append(short.lower())
+            long = i.name
+            out = out + f"\n[{short}] {long}"
+        
+        while True:
+            self.user.print(out)
+            input = self.user.get_input(timeout=self.timeout)
+            if input.lower() not in possible_selections:
+                self.user.print("Unknown option")
+            else:
+                return input
+
+
+
