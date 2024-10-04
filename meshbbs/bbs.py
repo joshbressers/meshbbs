@@ -77,21 +77,47 @@ class UserMenu:
 
     def __init__(self, user: User, menu_title: str):
         self.menu_items: List[MenuItem] = []
+        self.always_items: List[MenuItem] = []
         self.user = user
         self.menu_title = menu_title
         self.timeout = 3600
 
-    def add_item(self, name, letter, always=False):
-        self.menu_items.append(MenuItem(name, letter, always))
+        # Account for "[N] Next\n" We use 10 just to be safe
+        self.always_len = 10
 
-    def get_selection(self) -> str:
+    def add_item(self, name, letter, always=False):
+
+
+        if always == True:
+            self.always_items.append(MenuItem(name, str(letter), always))
+            self.always_len = self.always_len + len(f"\n[{letter}] {name}")
+        else:
+            self.menu_items.append(MenuItem(name, str(letter), always))
+
+    def get_selection(self, offset = 0) -> str:
         "Print the menu options, with a 'Next' if needed, then return the option chosen"
 
         out = self.menu_title
         possible_selections = []
 
+        menu_index = offset
         # Somehow show long lists
-        for i in self.menu_items:
+        for i in range(menu_index, len(self.menu_items)):
+            m = self.menu_items[i]
+            short = m.letter
+            possible_selections.append(short.lower())
+            long = m.name
+            menu_str = f"\n[{short}] {long}"
+
+            if len(out) + len(menu_str) + self.always_len > 190:
+                # Time to paginate!
+                out = out + f"\n[N] Next"
+                break
+            else:
+                out = out + menu_str
+                menu_index = menu_index + 1
+        
+        for i in self.always_items:
             short = i.letter
             possible_selections.append(short.lower())
             long = i.name
@@ -100,7 +126,10 @@ class UserMenu:
         while True:
             self.user.print(out)
             input = self.user.get_input(timeout=self.timeout)
-            if input.lower() not in possible_selections:
+            if input.lower() == "n":
+                # Are we paginating?
+                return self.get_selection(menu_index)
+            elif input.lower() not in possible_selections:
                 self.user.print("Unknown option")
             else:
                 return input.lower()

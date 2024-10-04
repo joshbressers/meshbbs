@@ -28,20 +28,20 @@ class Board(peewee.Model):
     def BoardRun(self, user: "meshbbs.bbs.User"):
         self.BBSUser = user
         while True:
-            output_message = f"{self.name} Messages:\n"
+            the_menu = meshbbs.bbs.UserMenu(self.BBSUser, "Messages:")
             for i in self.messages:
-                output_message = f"{output_message}[{i.id}] {i.title}\n"
+                the_menu.add_item(i.title, i.id)
+            the_menu.add_item("Write new", "W", True)
+            the_menu.add_item("Go Back", "B", True)
 
-            self.BBSUser.print(output_message)
-            self.BBSUser.print("You may read a message, [W]rite a new one, Go [B]ack")
-            input = self.BBSUser.get_input()
+            input = the_menu.get_selection()
             if input.isdigit():
                 # Read a message
                 self.ReadMessage(input)
-            if input.lower() == 'w':
+            elif input == 'w':
                 # Write a new message
                 self.WriteMessage()
-            if input.lower() == 'b':
+            elif input == 'b':
                 # Go back
                 return
 
@@ -105,18 +105,15 @@ class StageClass():
     def run(self, message:str = None) -> str:
 
         while True:
-            output = "What board would you like?"
+            the_menu = meshbbs.bbs.UserMenu(self.user, "What board would you like?")
             board_names = {}
             for i in Board.select():
-                output = f"{output}\n[{i.short}] {i.name}"
+                the_menu.add_item(i.name, i.short)
                 board_names[i.short] = i
-            output = f"{output}\n[X] Exit"
-            self.user.print(output)
-            input = self.user.get_input()
-            if input.upper() in board_names:
-                board_names[input.upper()].BoardRun(self.user)
-            elif input.upper() == "X":
+            the_menu.add_item("Exit", "X")
+            input = the_menu.get_selection()
+            if input == "x":
                 return
             else:
-                self.user.print("Unknown board")
+                board_names[input.upper()].BoardRun(self.user)
 
