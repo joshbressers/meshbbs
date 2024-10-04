@@ -15,8 +15,15 @@ You will need to copy the file `examples/example_config.ini` to config.ini. You 
 
 You should be able to run `poetry install` to install all the things, then run `poetry run meshbbs` and the BBS will start to run.
 
-You may want to change your long name to "hello to start BBS" or something similar.
+You may want to change your mesh node long name to "hello to start BBS" or something similar.
 
+# Contributing
+
+Patches are welcome! Issues are also just fine if you're not looking to send a PR.
+
+The biggest part of the rewrite was to make adding functionality easy. You should look in the "stages" directory to see how modules can be added to the system. Even though it's event driven, the API lets you write synchronous code (this is easier to write and read).
+
+The `main()` function exists in the server.py file. You can start there if you want to see how the sausage is made. Otherwise I would suggesting looking at the `wall.py` stage.
 ## License
 
 GNU General Public License v3.0

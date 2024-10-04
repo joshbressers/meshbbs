@@ -8,16 +8,15 @@ This is where the main function exists, everything starts here
 
 import logging
 import time
+import pubsub
+import queue
+import threading
 
 from meshbbs import config_init
 from meshbbs import utils
 from meshbbs import bbs
-import pubsub
 
-import queue
-import threading
-
-# General logging
+# Setup general logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -40,11 +39,11 @@ def main() -> None:
     logging.info(f"meshbbs is running on {system_config['interface_type']} interface...")
 
     def receive_packet(packet, interface) -> None:
-        "This function is run on ever message that is received"
+        "This function is run on every message that is received"
 
         the_packet = utils.MeshPacket(packet, interface)
         if the_packet.to_me() == True:
-            # Ignore packets not to us
+            # Only parse messages send to us
 
             if the_packet.sender_id not in users:
                 # Create a new user object if one doesn't exist
@@ -67,7 +66,7 @@ def main() -> None:
 
     try:
         while True:
-            # The main loop, everything happens in a thread
+            # The main loop, everything happens in a thread, nothing happens here
             time.sleep(1)
 
     except KeyboardInterrupt:

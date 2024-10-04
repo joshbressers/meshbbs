@@ -102,6 +102,7 @@ class fakeReturn:
 
 class DebugInterface:
     "A special class designed to be a local debug instance"
+    # This class probably belongs somewhere else
 
     def __init__(self, *argv, **kwargs):
         

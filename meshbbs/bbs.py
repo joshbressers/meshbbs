@@ -1,5 +1,5 @@
 """
-File to hold the main BBS class
+The BBS functionality classes
 """
 
 import meshbbs.stages.main
@@ -45,7 +45,7 @@ class User:
             message = self.my_q.get(timeout=timeout)
         except queue.Empty:
             # If we timeout, go back to the main menu
-            raise HelloMessage
+            raise HelloMessage()
         self.my_q.task_done()
         if message.lower() == "hello":
             raise HelloMessage()
@@ -61,7 +61,7 @@ class User:
             return False
 
 class MenuItem:
-    "A class representing an item in a menu"
+    "A class representing an item in a menu, you should never call this directly"
 
     def __init__(self, name, letter, always=False):
         self.name = name
@@ -73,20 +73,30 @@ class UserMenu:
     A class to handle menu items for the user
 
     Pass in the user handle and a list of menu items
+    The list can be very large, we paginate
+
+    Note, when we paginate, we do not re-load data
+    If something is changed by another user, we won't see that change here
     """
 
     def __init__(self, user: User, menu_title: str):
+
+        # The things to show
         self.menu_items: List[MenuItem] = []
+
+        # This is a special list that we always show, even when paginating
         self.always_items: List[MenuItem] = []
         self.user = user
         self.menu_title = menu_title
         self.timeout = 3600
 
+        # This variable tracks how much data we're adding to the menu
+        # Don't exceed 200
         # Account for "[N] Next\n" We use 10 just to be safe
         self.always_len = 10
 
-    def add_item(self, name, letter, always=False):
-
+    def add_item(self, name: str, letter: str, always=False):
+        "Add an item to the menu"
 
         if always == True:
             self.always_items.append(MenuItem(name, str(letter), always))
@@ -97,11 +107,14 @@ class UserMenu:
     def get_selection(self, offset = 0) -> str:
         "Print the menu options, with a 'Next' if needed, then return the option chosen"
 
+        # This variable will hold the text we send in the message
         out = self.menu_title
+
         possible_selections = []
 
+        # If we're paginating, this will not be zero
         menu_index = offset
-        # Somehow show long lists
+
         for i in range(menu_index, len(self.menu_items)):
             m = self.menu_items[i]
             short = m.letter

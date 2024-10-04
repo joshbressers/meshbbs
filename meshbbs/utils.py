@@ -1,3 +1,7 @@
+"""
+Utility functions and objects
+"""
+
 import logging
 import time
 import meshtastic
@@ -58,7 +62,7 @@ class MeshPacket:
         return None
 
     def get_receiver_short_name(self) -> str:
-        "Return the short name for the BBS"
+        "Return the short name for us (the BBS)"
         node_id = self.get_node_id_from_num(self.to_id)
         node_info = self.interface.nodes.get(node_id)
         if node_info:
@@ -83,6 +87,9 @@ class MeshPacket:
 
 def send_messages(send_q: queue.Queue, interface: meshtastic.stream_interface.StreamInterface) -> None:
     "The function we call as a thread to look for new messages and send them"
+
+    # Meshtastic messages can't be more than 255 bytes. This gives us room
+    # for whatever overehad ends up getting added
     max_payload_size = 200
 
     while True:
@@ -99,5 +106,6 @@ def send_messages(send_q: queue.Queue, interface: meshtastic.stream_interface.St
                 logging.info(f"REPLY SEND ID={d.id}")
             except Exception as e:
                 logging.info(f"REPLY SEND ERROR {e.message}")
-        time.sleep(2)
+        # We wait before sending the next message so we don't clog up the network
+        time.sleep(1)
         send_q.task_done()
