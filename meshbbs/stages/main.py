@@ -47,7 +47,7 @@ class MainMenu(threading.Thread):
         while True:
             try:
                 selection = the_menu.get_selection()
-                the_stages[selection.lower()].StageClass(self.user).run()
+                the_stages[selection].StageClass(self.user).run()
 
             except meshbbs.bbs.HelloMessage:
                 # We say "hello", go back to the main menu

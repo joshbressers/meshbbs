@@ -50,15 +50,19 @@ class StageClass():
             message = WallMessage.select().order_by(WallMessage.update_time.desc()).get()
             self.user.print("The wall message is")
             self.user.print(f"{message.message}\nBy {message.user} on {message.update_time}\n")
-            self.user.print("Would you like to change the message?\nY/N\n")
-            input = self.user.get_input()
-            if input.lower() == "y":
+    
+            the_menu = meshbbs.bbs.UserMenu(self.user, "Would you like to change the message?")
+            the_menu.add_item("Yes", "Y")
+            the_menu.add_item("No", "N")
+            input = the_menu.get_selection()
+    
+            if input == "y":
                 # change the message
-                self.user.print("Type new message. Send 'done' as its own message when you are done")
+                self.user.print("Type new message. You may send multiple messages. Send a single dot '.' as its own message when you are done")
                 new_message = ""
                 while True:
                     new_input = self.user.get_input()
-                    if new_input.lower() == "done":
+                    if new_input == ".":
                         break
                     else:
                         new_message = new_message + new_input + " "
@@ -67,5 +71,3 @@ class StageClass():
                 message.save()
             elif input.lower() == "n":
                 return
-            else:
-                self.user.print("Unknown option")

@@ -103,7 +103,7 @@ class UserMenu:
             if input.lower() not in possible_selections:
                 self.user.print("Unknown option")
             else:
-                return input
+                return input.lower()
 
 
 
