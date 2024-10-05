@@ -1,8 +1,8 @@
 # meshbbs
 
-This is a BBS project to run on a meshtastic node. The project was forked from https://github.com/TheCommsChannel/TC2-BBS-mesh and has been heavily modified.
+This is a BBS project to run on a meshtastic node. The project was forked from https://github.com/TheCommsChannel/TC2-BBS-mesh and has been heavily modified. They deserve credit for the initial idea and code.
 
-It uses python poetry to manage the project.
+![image](examples/meshbbs-screenshot.jpeg)
 
 This project is VERY VERY early, so be nice and patient. The code isn't amazing, the model to get and send message was designed to be easy for anyone to write plugins, not to be "correct". You'll understand when you look at the code :)
 
@@ -11,7 +11,7 @@ This project is VERY VERY early, so be nice and patient. The code isn't amazing,
 Make sure you have poetry installed
 https://python-poetry.org/
 
-You will need to copy the file `examples/example_config.ini` to config.ini. You should be able to figure this file out if you look in it. You can talk to a meshtastic node via serial or TCP/IP. There is also a debug interface that you can run to type commands to the BBS locally to test things out.
+You will need to copy the file `examples/example_config.ini` to config.ini. You should be able to figure this file out if you look in it. You can talk to a meshtastic node via serial or TCP/IP. There is also a debug interface that you can run to type commands to the BBS locally to test things out. I would like to see this also run on a raspberry pi with a LoRa hat someday.
 
 You should be able to run `poetry install` to install all the dependencies, then run `poetry run meshbbs` and the BBS will start to run.
 

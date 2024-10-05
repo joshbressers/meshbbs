@@ -155,9 +155,9 @@ class DebugInterface:
             pub.sendMessage("meshtastic.receive", packet=self.fake_packet, interface=self)
 
     def sendText(self, text, destinationId, wantAck, wantResponse) -> fakeReturn:
-        print("---START MESSAGE---")
+        print("\n---START MESSAGE---")
         print(text)
-        print("----END MESSAGE----")
+        print("----END MESSAGE----\n")
 
         return fakeReturn()
     
