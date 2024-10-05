@@ -139,7 +139,7 @@ class UserMenu:
         while True:
             self.user.print(out)
             input = self.user.get_input(timeout=self.timeout)
-            if input.lower() == "n":
+            if input.lower() == "n" and 'n' not in possible_selections:
                 # Are we paginating?
                 return self.get_selection(menu_index)
             elif input.lower() not in possible_selections:
