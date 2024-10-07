@@ -27,6 +27,12 @@ The biggest part of the rewrite was to make adding functionality easy. You shoul
 
 The `main()` function exists in the server.py file. You can start there if you want to see how the sausage is made. Otherwise I would suggesting looking at the `wall.py` and `main.py` in the stages directory.
 
+If you plan to use vscode, you need to set the poetry venv to the current directory by running
+
+`poetry config virtualenvs.in-project true`
+
+There's no way to set this automatically unfortunately
+
 ## License
 
 GNU General Public License v3.0
