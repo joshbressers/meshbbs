@@ -100,12 +100,10 @@ def send_messages(send_q: queue.Queue, interface: meshtastic.stream_interface.St
                 d = interface.sendText(
                     text=chunk,
                     destinationId=destination,
-                    wantAck=False,
+                    wantAck=True,
                     wantResponse=False
                 )
                 logging.info(f"REPLY SEND ID={d.id}")
             except Exception as e:
                 logging.info(f"REPLY SEND ERROR {e.message}")
-        # We wait before sending the next message so we don't clog up the network
-        time.sleep(1)
         send_q.task_done()
