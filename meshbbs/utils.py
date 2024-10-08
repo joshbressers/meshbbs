@@ -91,19 +91,39 @@ def send_messages(send_q: queue.Queue, interface: meshtastic.stream_interface.St
     # Meshtastic messages can't be more than 255 bytes. This gives us room
     # for whatever overehad ends up getting added
     max_payload_size = 200
+    got_response = False
+
+    # We have to name this onAckNak to get ACK messages back
+    def onAckNak(packet):
+        nonlocal got_response
+        got_response = True
 
     while True:
         (destination, message) = send_q.get()
         for i in range(0, len(message), max_payload_size):
             chunk = message[i:i + max_payload_size]
             try:
+                got_response = False
                 d = interface.sendText(
                     text=chunk,
                     destinationId=destination,
                     wantAck=True,
-                    wantResponse=False
+                    wantResponse=False,
+                    onResponse=onAckNak
                 )
                 logging.info(f"REPLY SEND ID={d.id}")
+
+                # This might be wrong. I'm not entirely sure.
+                # We wait for *a* response
+                # We don't check the response because it seems to be somewhat random
+                # what gets returned. By waiting, our messages stay in order
+                loops = 0
+                while got_response == False:
+                    # I think this will always get a response, but just in case
+                    loops = loops + 1
+                    if loops > 20: break
+                    time.sleep(1)
+                    logging.debug(f"Waiting for response ID={d.id}")
             except Exception as e:
                 logging.info(f"REPLY SEND ERROR {e.message}")
         send_q.task_done()
