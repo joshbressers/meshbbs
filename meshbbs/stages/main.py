@@ -7,13 +7,15 @@ import meshbbs.stages.help
 import meshbbs.stages.echo
 import meshbbs.stages.wall
 import meshbbs.stages.board
+import meshbbs.stages.guess
 
 stages = [
     meshbbs.stages.about,
     meshbbs.stages.help,
     meshbbs.stages.echo,
     meshbbs.stages.wall,
-    meshbbs.stages.board
+    meshbbs.stages.board,
+    meshbbs.stages.guess
 ]
 
 
