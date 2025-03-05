@@ -150,6 +150,7 @@ class DebugInterface:
     
     def __reader(self) -> None:
         while True:
+            time.sleep(2)
             data = input("Enter Text: ")
             self.fake_packet['decoded']['payload'] = bytes(data, 'utf-8')
             pub.sendMessage("meshtastic.receive", packet=self.fake_packet, interface=self)
