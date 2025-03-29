@@ -9,7 +9,7 @@ name = "About"
 class StageClass():
     def __init__(self, user: "meshbbs.bbs.User"):
         self.user = user
-        self.message = about_message = """This is Meshtastic BBS
+        self.message = about_message = """This is the CypherCon Meshtastic BBS
 The project lives at https://github.com/joshbressers/meshbbs
 Feel free to file bugs
 

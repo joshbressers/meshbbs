@@ -7,13 +7,15 @@ import meshbbs.stages.help
 import meshbbs.stages.echo
 import meshbbs.stages.wall
 import meshbbs.stages.board
+import meshbbs.stages.htp
 
 stages = [
     meshbbs.stages.about,
     meshbbs.stages.help,
     meshbbs.stages.echo,
     meshbbs.stages.wall,
-    meshbbs.stages.board
+    meshbbs.stages.board,
+    meshbbs.stages.htp
 ]
 
 
@@ -25,7 +27,7 @@ class MainMenu(threading.Thread):
     """
     def __init__(self, user: "meshbbs.bbs.User"):
         threading.Thread.__init__(self)
-        self.main_message = "\nWelcome to Meshtastic BBS\n"
+        self.main_message = "\nCypherCon Meshtastic BBS\n"
         self.to_run = None
         self.to_menu = False
         self.user = user
@@ -39,7 +41,7 @@ class MainMenu(threading.Thread):
 
         the_stages = {}
 
-        the_menu = meshbbs.bbs.UserMenu(self.user, "Welcome to Meshtastic BBS")
+        the_menu = meshbbs.bbs.UserMenu(self.user, "CypherCon Meshtastic BBS")
         the_menu.timeout = None
         for i in stages:
             the_menu.add_item(name=i.name, letter=i.letter, always=True)

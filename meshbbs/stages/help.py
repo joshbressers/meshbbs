@@ -11,6 +11,8 @@ class StageClass():
         self.user = user
         self.help_message = """Someday this will be more helpful
 For now, send 'hello' to go back to the menu
+
+Hack the planet!
 """
 
     def run(self) -> str:
