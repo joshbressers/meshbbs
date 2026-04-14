@@ -1,19 +1,18 @@
-[tool.poetry]
+[project]
 name = "meshbbs"
 version = "0.0.1"
-description = "A meshtastic BBS system"
+description = "Add your description here"
 readme = "README.md"
-authors = ["Josh Bressers <josh@bres.net>"]
+requires-python = ">=3.14"
+dependencies = [
+    "meshtastic>=2.7.8",
+    "peewee>=4.0.4",
+]
 
-[tool.poetry.dependencies]
-python = ">=3.9,<3.13"
-pypubsub = "^4.0.3"
-meshtastic = "^2.5.0"
-peewee = "^3.17.6"
-
-[tool.poetry.scripts]
-meshbbs = "meshbbs.server:main"
+[project.scripts]
+bbs = "meshbbs.server:main"
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
